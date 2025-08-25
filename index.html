@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>8º BBM → WhatsApp</title>
+
+<!-- Ícone da página -->
+<link rel="icon" type="image/png" href="icon.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="icon.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="icon.png" />
+<meta name="theme-color" content="#cc0000" />
+
+<style>
+  :root { --bg:#1a0000; --fg:#fff2f2; --muted:#ffb3b3; --card:#260000; --accent:#cc0000; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; background:var(--bg); color:var(--fg); }
+  h1 { font-size:20px; margin:16px; }
+  .wrap { max-width:900px; margin:0 auto 80px; padding:0 16px; }
+  .grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); }
+  .card { background:var(--card); border:1px solid #400000; border-radius:16px; padding:16px; }
+  label { display:block; font-weight:600; margin-bottom:6px; }
+  select, input[type="text"], textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #660000; background:#0f0000; color:var(--fg); }
+  textarea { min-height:110px; resize:vertical; }
+  .muted { color:var(--muted); font-size:12px; }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .counter { display:flex; align-items:center; gap:8px; }
+  .counter .value { min-width:40px; text-align:center; padding:8px 10px; border-radius:10px; background:#0f0000; border:1px solid #660000; }
+  button { border:1px solid #660000; background:#0f0000; color:var(--fg); padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+  button:hover { border-color:#aa0000; }
+  .primary { background:var(--accent); border-color:transparent; }
+  #preview { white-space:pre-wrap; line-height:1.45; font-size:14px; margin-top:10px; }
+  .bcr-item, .curso-item { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .bcr-item span { width:28px; text-align:center; font-weight:700; color:#ff6666; }
+  .final { margin-top:20px; }
+  .checkbox { display:flex; align-items:center; gap:10px; margin-top:8px; }
+  .checkbox input { width:18px; height:18px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>8º BBM → WhatsApp</h1>
+
+    <div class="grid">
+      <div class="card">
+        <label for="obm">OBM</label>
+        <select id="obm">
+          <option>Tubarão</option><option>Capivari</option><option>Laguna</option>
+          <option>Imbituba</option><option>Garopaba</option><option>Imaruí</option>
+          <option>Armazém</option><option>Braço do Norte</option><option>São Ludgero</option>
+          <option>Orleans</option><option>Lauro Müller</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <label for="chefe">Chefe de Socorro</label>
+        <input id="chefe" type="text" placeholder="GRADUAÇÃO / NOME" />
+      </div>
+
+      <div class="card">
+        <label>BM</label>
+        <div class="counter">
+          <button type="button" data-dec="bm">–</button>
+          <div class="value" id="bm-val">0</div>
+          <button type="button" data-inc="bm">+</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>BCP</label>
+        <div class="counter">
+          <button type="button" data-dec="bcp">Remover</button>
+          <div class="value" id="bcp-val">0</div>
+          <button type="button" data-inc="bcp">Adicionar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <label style="margin:0;">BCR</label>
+          <div class="row">
+            <button type="button" id="bcr-add">Adicionar</button>
+            <button type="button" id="bcr-rem">Remover</button>
+          </div>
+        </div>
+        <div id="bcr-list"></div>
+      </div>
+
+      <div class="card"><label for="abtr">ABTR</label><input id="abtr" type="text" class="alnum" /></div>
+      <div class="card"><label for="asu">ASU</label><input id="asu" type="text" class="alnum" /></div>
+
+      <!-- NOVO: AR (acima de AT) -->
+      <div class="card"><label for="ar">AR</label><input id="ar" type="text" class="alnum" /></div>
+
+      <div class="card"><label for="at">AT</label><input id="at" type="text" class="alnum" /></div>
+
+      <div class="card">
+        <label for="reserva">Viaturas Reservas</label>
+        <input id="reserva" type="text" class="upper-any" />
+      </div>
+
+      <div class="card"><label for="merg">Mergulhador</label><input id="merg" type="text" class="alnum" /></div>
+      <div class="card"><label for="embarc">Condutor de Embarcação</label><input id="embarc" type="text" class="alnum" /></div>
+      <div class="card"><label for="motoaq">Condutor de Moto Aquática</label><input id="motoaq" type="text" class="alnum" /></div>
+
+      <!-- Cursos -->
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <label style="margin:0;">CURSOS/TREINAMENTOS</label>
+          <div class="row">
+            <button type="button" id="curso-add">Adicionar</button>
+            <button type="button" id="curso-rem">Remover</button>
+          </div>
+        </div>
+        <div id="cursos-wrap"></div>
+      </div>
+
+      <!-- Observações -->
+      <div class="card">
+        <label for="obs">Observações</label>
+        <textarea id="obs"></textarea>
+        <div class="checkbox">
+          <input type="checkbox" id="gu-pulapula" />
+          <label for="gu-pulapula" style="margin:0;">GU PULA-PULA</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px"><div id="preview"></div></div>
+
+    <div class="final">
+      <div class="card"><button class="primary" id="finalizar" style="width:100%;">FINALIZAR (abrir WhatsApp)</button></div>
+    </div>
+  </div>
+
+<script>
+  const z2 = n => String(n).padStart(2,"0");
+  const nao = v => (v && v.trim()!=="") ? v.trim() : "Não";
+
+  function toUpperAny(el){ el.value = el.value.toUpperCase(); }
+  function sanitizeAlnum(el){ el.value = el.value.toUpperCase().replace(/[^A-Z0-9 ]/g,''); }
+
+  document.addEventListener('input', (e)=>{
+    if (e.target.classList.contains('alnum')) sanitizeAlnum(e.target);
+    if (e.target.classList.contains('upper-any')) toUpperAny(e.target);
+    if (e.target.id==="chefe") toUpperAny(e.target);
+  });
+
+  const counters = { bm:0, bcp:0 };
+  const refreshCounters = () => {
+    document.getElementById('bm-val').textContent  = counters.bm;
+    document.getElementById('bcp-val').textContent = counters.bcp;
+  };
+  document.querySelectorAll('[data-inc]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ counters[btn.dataset.inc]++; refreshCounters(); atualizarPreview(); });
+  });
+  document.querySelectorAll('[data-dec]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ const k=btn.dataset.dec; counters[k]=Math.max(0,counters[k]-1); refreshCounters(); atualizarPreview(); });
+  });
+
+  const bcrList=document.getElementById('bcr-list');
+  const addBCR=()=>{const idx=bcrList.children.length+1;const div=document.createElement('div');div.className='bcr-item';div.innerHTML=`<span>${z2(idx)}</span><select class="bcr-shift"><option>12Diurno</option><option>12Noturno</option><option selected>24hrs</option></select>`;bcrList.appendChild(div);atualizarPreview();};
+  const remBCR=()=>{if(bcrList.lastElementChild){bcrList.removeChild(bcrList.lastElementChild);atualizarPreview();}};
+  document.getElementById('bcr-add').addEventListener('click',addBCR);
+  document.getElementById('bcr-rem').addEventListener('click',remBCR);
+  bcrList.addEventListener('change',atualizarPreview);
+
+  function montarBCRTexto(){const shifts=Array.from(document.querySelectorAll('#bcr-list .bcr-shift')).map(s=>s.value);if(shifts.length===0)return"00";const cont={"12Diurno":0,"12Noturno":0,"24hrs":0};shifts.forEach(t=>cont[t]++);const ordem=["12Diurno","12Noturno","24hrs"];return ordem.filter(t=>cont[t]>0).map(t=>`${String(cont[t]).padStart(2,"0")} ${t}`).join(" + ");}
+
+  const cursosWrap=document.getElementById('cursos-wrap');
+  const cursoOptions=`<option value="">—</option><option>CBRIE</option><option>CBREC</option><option>CRVE</option><option>CSALT</option><option>TBRIE</option><option>TBREC</option><option>TRVE</option><option>TSALT</option><option>TCIU</option>`;
+  function addCurso(){const div=document.createElement('div');div.className='curso-item';div.innerHTML=`<select class="curso-sel">${cursoOptions}</select>`;cursosWrap.appendChild(div);atualizarPreview();}
+  function remCurso(){if(cursosWrap.lastElementChild){cursosWrap.removeChild(cursosWrap.lastElementChild);atualizarPreview();}}
+  document.getElementById('curso-add').addEventListener('click',addCurso);
+  document.getElementById('curso-rem').addEventListener('click',remCurso);
+  cursosWrap.addEventListener('change',atualizarPreview);
+
+  function gerarMensagem(){
+    const obm=document.getElementById('obm').value;
+    const chefe=(document.getElementById('chefe').value||"").trim();
+    const bm=z2(counters.bm); const bcp=z2(counters.bcp); const bcr=montarBCRTexto();
+    const abtr=nao(document.getElementById('abtr').value.toUpperCase());
+    const asu=nao(document.getElementById('asu').value.toUpperCase());
+    const ar = nao(document.getElementById('ar').value.toUpperCase());   // <-- novo campo lido aqui
+    const at = nao(document.getElementById('at').value.toUpperCase());
+    const resv=nao(document.getElementById('reserva').value.toUpperCase());
+    const merg=nao(document.getElementById('merg').value.toUpperCase());
+    const emb=nao(document.getElementById('embarc').value.toUpperCase());
+    const moto=nao(document.getElementById('motoaq').value.toUpperCase());
+    const cursos=Array.from(document.querySelectorAll('#cursos-wrap .curso-sel')).map(s=>s.value).filter(v=>v);
+    const cursosLinha=cursos.length>0?`• ${cursos.join(" / ")}`:"";
+    const obs=document.getElementById('obs').value.trim();
+    const gu=document.getElementById('gu-pulapula').checked;
+
+    let linhas=[];
+    linhas.push(`*OBM*: ${obm}`);
+    linhas.push(`*Chefe de Socorro*: ${chefe || "—"}`);
+    linhas.push(`*BM*: ${bm}`);
+    linhas.push(`*BCP*: ${bcp}`);
+    linhas.push(`*BCR*: ${bcr}`);
+    linhas.push(`*ABTR*: ${abtr}`);
+    linhas.push(`*ASU*: ${asu}`);
+    linhas.push(`*AR*: ${ar}`);   // <-- linha adicionada à mensagem
+    linhas.push(`*AT*: ${at}`);
+    linhas.push(`*Viaturas Reservas*: ${resv}`);
+    linhas.push(`*Mergulhador*: ${merg}`);
+    linhas.push(`*Condutor de Embarcação*: ${emb}`);
+    linhas.push(`*Condutor de Moto Aquática*: ${moto}`);
+    if(cursosLinha) linhas.push(`*CURSOS/TREINAMENTOS*: ${cursosLinha}`);
+    if(obs) linhas.push(`*Observações*: ${obs}`);
+    if(gu) linhas.push(`*GU PULA-PULA*`);
+    return linhas.join("\n");
+  }
+
+  const preview=document.getElementById('preview');
+  function atualizarPreview(){ preview.textContent=gerarMensagem(); }
+  atualizarPreview();
+  document.querySelectorAll('input, select, textarea').forEach(el=>{
+    el.addEventListener('input', atualizarPreview);
+    el.addEventListener('change', atualizarPreview);
+  });
+
+  document.getElementById('finalizar').addEventListener('click', ()=>{
+    const texto=encodeURIComponent(gerarMensagem());
+    const url=`https://wa.me/?text=${texto}`;
+    window.open(url,'_blank');
+  });
+
+  (function init(){ addBCR(); addCurso(); refreshCounters(); })();
+</script>
+</body>
+</html>
