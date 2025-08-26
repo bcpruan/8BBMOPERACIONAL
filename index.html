@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>8º BBM → WhatsApp</title>
 
-<!-- Ícone da página -->
 <link rel="icon" type="image/png" href="icon.png" sizes="32x32" />
 <link rel="icon" type="image/png" href="icon.png" sizes="192x192" />
 <link rel="apple-touch-icon" href="icon.png" />
@@ -79,31 +78,27 @@
         <div class="row" style="justify-content:space-between;">
           <label style="margin:0;">BCR</label>
           <div class="row">
-            <button type="button" id="bcr-add">Adicionar</button>
-            <button type="button" id="bcr-rem">Remover</button>
+            <button type="button" id="bcr-add">+</button>
+            <button type="button" id="bcr-rem">-</button>
           </div>
         </div>
         <div id="bcr-list"></div>
       </div>
 
-      <div class="card"><label for="abtr">ABTR</label><input id="abtr" type="text" class="alnum" /></div>
-      <div class="card"><label for="asu">ASU</label><input id="asu" type="text" class="alnum" /></div>
-
-      <!-- NOVO: AR (acima de AT) -->
-      <div class="card"><label for="ar">AR</label><input id="ar" type="text" class="alnum" /></div>
-
-      <div class="card"><label for="at">AT</label><input id="at" type="text" class="alnum" /></div>
+      <div class="card"><label for="abtr">ABTR</label><input id="abtr" type="text" class="alnum" placeholder="NUMERO DA VIATURA" /></div>
+      <div class="card"><label for="asu">ASU</label><input id="asu" type="text" class="alnum" placeholder="NUMERO DA VIATURA" /></div>
+      <div class="card"><label for="ar">AR</label><input id="ar" type="text" class="alnum" placeholder="NUMERO DA VIATURA" /></div>
+      <div class="card"><label for="at">AT</label><input id="at" type="text" class="alnum" placeholder="NUMERO DA VIATURA" /></div>
 
       <div class="card">
         <label for="reserva">Viaturas Reservas</label>
-        <input id="reserva" type="text" class="upper-any" />
+        <input id="reserva" type="text" class="upper-any" placeholder="Ex: ASU-000 / AR-000" />
       </div>
 
-      <div class="card"><label for="merg">Mergulhador</label><input id="merg" type="text" class="alnum" /></div>
-      <div class="card"><label for="embarc">Condutor de Embarcação</label><input id="embarc" type="text" class="alnum" /></div>
-      <div class="card"><label for="motoaq">Condutor de Moto Aquática</label><input id="motoaq" type="text" class="alnum" /></div>
+      <div class="card"><label for="merg">Mergulhador</label><input id="merg" type="text" class="alnum" placeholder="GRADUAÇÃO / NOME" /></div>
+      <div class="card"><label for="embarc">Condutor de Embarcação</label><input id="embarc" type="text" class="alnum" placeholder="GRADUAÇÃO / NOME" /></div>
+      <div class="card"><label for="motoaq">Condutor de Moto Aquática</label><input id="motoaq" type="text" class="alnum" placeholder="GRADUAÇÃO / NOME" /></div>
 
-      <!-- Cursos -->
       <div class="card">
         <div class="row" style="justify-content:space-between;">
           <label style="margin:0;">CURSOS/TREINAMENTOS</label>
@@ -115,10 +110,9 @@
         <div id="cursos-wrap"></div>
       </div>
 
-      <!-- Observações -->
       <div class="card">
         <label for="obs">Observações</label>
-        <textarea id="obs"></textarea>
+        <textarea id="obs" placeholder="Ex.: Anotações importantes, viaturas em manutenção, efetivo extra..."></textarea>
         <div class="checkbox">
           <input type="checkbox" id="gu-pulapula" />
           <label for="gu-pulapula" style="margin:0;">GU PULA-PULA</label>
@@ -136,6 +130,15 @@
 <script>
   const z2 = n => String(n).padStart(2,"0");
   const nao = v => (v && v.trim()!=="") ? v.trim() : "Não";
+
+  const TURNOS_BCR = [
+    "12D 07hrs as 19hrs",
+    "12D 08hrs as 20hrs",
+    "12N 19hrs as 07hrs",
+    "12N 20hrs as 08hrs",
+    "24hrs 07hrs as 07hrs",
+    "24hrs 08hrs as 08hrs",
+  ];
 
   function toUpperAny(el){ el.value = el.value.toUpperCase(); }
   function sanitizeAlnum(el){ el.value = el.value.toUpperCase().replace(/[^A-Z0-9 ]/g,''); }
@@ -159,13 +162,31 @@
   });
 
   const bcrList=document.getElementById('bcr-list');
-  const addBCR=()=>{const idx=bcrList.children.length+1;const div=document.createElement('div');div.className='bcr-item';div.innerHTML=`<span>${z2(idx)}</span><select class="bcr-shift"><option>12Diurno</option><option>12Noturno</option><option selected>24hrs</option></select>`;bcrList.appendChild(div);atualizarPreview();};
-  const remBCR=()=>{if(bcrList.lastElementChild){bcrList.removeChild(bcrList.lastElementChild);atualizarPreview();}};
+  const addBCR=()=>{
+    const idx=bcrList.children.length+1;
+    const div=document.createElement('div');
+    div.className='bcr-item';
+    const options = TURNOS_BCR.map(t=>`<option>${t}</option>`).join("");
+    div.innerHTML=`<span>${z2(idx)}</span><select class="bcr-shift">${options}</select>`;
+    bcrList.appendChild(div);
+    atualizarPreview();
+  };
+  const remBCR=()=>{ if(bcrList.lastElementChild){ bcrList.removeChild(bcrList.lastElementChild); atualizarPreview(); } };
   document.getElementById('bcr-add').addEventListener('click',addBCR);
   document.getElementById('bcr-rem').addEventListener('click',remBCR);
   bcrList.addEventListener('change',atualizarPreview);
 
-  function montarBCRTexto(){const shifts=Array.from(document.querySelectorAll('#bcr-list .bcr-shift')).map(s=>s.value);if(shifts.length===0)return"00";const cont={"12Diurno":0,"12Noturno":0,"24hrs":0};shifts.forEach(t=>cont[t]++);const ordem=["12Diurno","12Noturno","24hrs"];return ordem.filter(t=>cont[t]>0).map(t=>`${String(cont[t]).padStart(2,"0")} ${t}`).join(" + ");}
+  function montarBCRTexto(){
+    const shifts = Array.from(document.querySelectorAll('#bcr-list .bcr-shift')).map(s=>s.value);
+    const total = shifts.length;
+    if (total === 0) return { total: 0, texto: "00" };
+    const cont = Object.fromEntries(TURNOS_BCR.map(t => [t, 0]));
+    shifts.forEach(t => { if (cont[t] !== undefined) cont[t]++; });
+    const partes = TURNOS_BCR
+      .filter(t => cont[t] > 0)
+      .map(t => `${String(cont[t]).padStart(2,'0')} (${t})`);
+    return { total, texto: partes.join("; ") };
+  }
 
   const cursosWrap=document.getElementById('cursos-wrap');
   const cursoOptions=`<option value="">—</option><option>CBRIE</option><option>CBREC</option><option>CRVE</option><option>CSALT</option><option>TBRIE</option><option>TBREC</option><option>TRVE</option><option>TSALT</option><option>TCIU</option>`;
@@ -178,11 +199,14 @@
   function gerarMensagem(){
     const obm=document.getElementById('obm').value;
     const chefe=(document.getElementById('chefe').value||"").trim();
-    const bm=z2(counters.bm); const bcp=z2(counters.bcp); const bcr=montarBCRTexto();
+    const bm=z2(counters.bm), bcp=z2(counters.bcp);
+    const bcrInfo=montarBCRTexto();
+    const bcrLinha = bcrInfo.total>0 ? `${String(bcrInfo.total).padStart(2,'0')} ( ${bcrInfo.texto} )` : "00";
+
     const abtr=nao(document.getElementById('abtr').value.toUpperCase());
     const asu=nao(document.getElementById('asu').value.toUpperCase());
-    const ar = nao(document.getElementById('ar').value.toUpperCase());   // <-- novo campo lido aqui
-    const at = nao(document.getElementById('at').value.toUpperCase());
+    const ar=nao(document.getElementById('ar').value.toUpperCase());
+    const at=nao(document.getElementById('at').value.toUpperCase());
     const resv=nao(document.getElementById('reserva').value.toUpperCase());
     const merg=nao(document.getElementById('merg').value.toUpperCase());
     const emb=nao(document.getElementById('embarc').value.toUpperCase());
@@ -197,10 +221,10 @@
     linhas.push(`*Chefe de Socorro*: ${chefe || "—"}`);
     linhas.push(`*BM*: ${bm}`);
     linhas.push(`*BCP*: ${bcp}`);
-    linhas.push(`*BCR*: ${bcr}`);
+    linhas.push(`*BCR*: ${bcrLinha}`);
     linhas.push(`*ABTR*: ${abtr}`);
     linhas.push(`*ASU*: ${asu}`);
-    linhas.push(`*AR*: ${ar}`);   // <-- linha adicionada à mensagem
+    linhas.push(`*AR*: ${ar}`);
     linhas.push(`*AT*: ${at}`);
     linhas.push(`*Viaturas Reservas*: ${resv}`);
     linhas.push(`*Mergulhador*: ${merg}`);
@@ -208,27 +232,45 @@
     linhas.push(`*Condutor de Moto Aquática*: ${moto}`);
     if(cursosLinha) linhas.push(`*CURSOS/TREINAMENTOS*: ${cursosLinha}`);
     if(obs) linhas.push(`*Observações*: ${obs}`);
-    if(gu) linhas.push(`*GU PULA-PULA*`);
+    if(gu)  linhas.push(`*GU PULA-PULA*`);
     return linhas.join("\n");
   }
 
-  const preview=document.getElementById('preview');
-  function atualizarPreview(){ preview.textContent=gerarMensagem(); }
-  atualizarPreview();
-  document.querySelectorAll('input, select, textarea').forEach(el=>{
-    el.addEventListener('input', atualizarPreview);
-    el.addEventListener('change', atualizarPreview);
-  });
+    // ===== Deteção de dispositivo e abertura correta do WhatsApp =====
+    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(navigator.userAgent);
 
-  document.getElementById('finalizar').addEventListener('click', ()=>{
-    const texto=encodeURIComponent(gerarMensagem());
-    const url=`https://wa.me/?text=${texto}`;
-    window.open(url,'_blank');
-  });
+function abrirWhatsApp(textoPlano){
+  const enc = encodeURIComponent(textoPlano);
 
-  (function init(){ addBCR(); addCurso(); refreshCounters(); })();
+  if (isMobile) {
+    // 1) Tenta abrir o APP direto
+    const appUrl = `whatsapp://send?text=${enc}`;
+    window.location.href = appUrl;
+
+    // 2) Se o app não abrir, faz fallback pro site móvel oficial
+    setTimeout(() => {
+      window.location.href = `https://api.whatsapp.com/send?text=${enc}`;
+    }, 1200);
+  } else {
+    // Desktop: abrir Web WhatsApp
+    const webUrl = `https://web.whatsapp.com/send?text=${enc}`;
+    window.open(webUrl, '_blank');
+  }
+}
+
+const preview=document.getElementById('preview');
+function atualizarPreview(){ preview.textContent=gerarMensagem(); }
+atualizarPreview();
+document.querySelectorAll('input, select, textarea').forEach(el=>{
+  el.addEventListener('input', atualizarPreview);
+  el.addEventListener('change', atualizarPreview);
+});
+
+document.getElementById('finalizar').addEventListener('click', ()=>{
+  abrirWhatsApp(gerarMensagem());
+});
+
+(function init(){ addBCR(); addCurso(); refreshCounters(); })();
 </script>
 </body>
 </html>
-
-
