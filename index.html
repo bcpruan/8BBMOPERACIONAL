@@ -236,41 +236,38 @@
     return linhas.join("\n");
   }
 
-    // ===== Deteção de dispositivo e abertura correta do WhatsApp =====
-    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(navigator.userAgent);
-
-function abrirWhatsApp(textoPlano){
-  const enc = encodeURIComponent(textoPlano);
-
-  if (isMobile) {
-    // 1) Tenta abrir o APP direto
-    const appUrl = `whatsapp://send?text=${enc}`;
-    window.location.href = appUrl;
-
-    // 2) Se o app não abrir, faz fallback pro site móvel oficial
-    setTimeout(() => {
-      window.location.href = `https://api.whatsapp.com/send?text=${enc}`;
-    }, 1200);
-  } else {
-    // Desktop: abrir Web WhatsApp
-    const webUrl = `https://web.whatsapp.com/send?text=${enc}`;
-    window.open(webUrl, '_blank');
+  // abrir WhatsApp conforme dispositivo
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|webOS|BlackBerry/i.test(navigator.userAgent);
+  function abrirWhatsApp(textoPlano){
+    const enc = encodeURIComponent(textoPlano);
+    if (isMobile) {
+      const appUrl = `whatsapp://send?text=${enc}`;
+      window.location.href = appUrl;
+      setTimeout(() => { window.location.href = `https://api.whatsapp.com/send?text=${enc}`; }, 1200);
+    } else {
+      window.open(`https://web.whatsapp.com/send?text=${enc}`, '_blank');
+    }
   }
-}
 
-const preview=document.getElementById('preview');
-function atualizarPreview(){ preview.textContent=gerarMensagem(); }
-atualizarPreview();
-document.querySelectorAll('input, select, textarea').forEach(el=>{
-  el.addEventListener('input', atualizarPreview);
-  el.addEventListener('change', atualizarPreview);
-});
+  const preview=document.getElementById('preview');
+  function atualizarPreview(){ preview.textContent=gerarMensagem(); }
+  atualizarPreview();
+  document.querySelectorAll('input, select, textarea').forEach(el=>{
+    el.addEventListener('input', atualizarPreview);
+    el.addEventListener('change', atualizarPreview);
+  });
 
-document.getElementById('finalizar').addEventListener('click', ()=>{
-  abrirWhatsApp(gerarMensagem());
-});
+  document.getElementById('finalizar').addEventListener('click', ()=>{
+    abrirWhatsApp(gerarMensagem());
+  });
 
-(function init(){ addBCR(); addCurso(); refreshCounters(); })();
+  // ===== INICIALIZAÇÃO: sem BCR por padrão =====
+  (function init(){
+    // NÃO adiciona BCR ao carregar
+    addCurso();
+    refreshCounters();
+    atualizarPreview();
+  })();
 </script>
 </body>
 </html>
