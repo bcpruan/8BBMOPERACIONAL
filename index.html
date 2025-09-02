@@ -189,7 +189,7 @@
   }
 
   const cursosWrap=document.getElementById('cursos-wrap');
-  const cursoOptions=`<option value="">—</option><option>CBRIE</option><option>CBREC</option><option>CRVE</option><option>CSALT</option><option>TBRIE</option><option>TBREC</option><option>TRVE</option><option>TSALT</option><option>TCIU</option>`;
+  const cursoOptions=`<option value="">—</option><option>CBRIE</option><option>CBREC</option><option>CSALT</option><option>CIAD</option><option>INTEGRANTE DA FT</option><option>TBRIE</option><option>TBREC</option><option>TSALT</option>`;
   function addCurso(){const div=document.createElement('div');div.className='curso-item';div.innerHTML=`<select class="curso-sel">${cursoOptions}</select>`;cursosWrap.appendChild(div);atualizarPreview();}
   function remCurso(){if(cursosWrap.lastElementChild){cursosWrap.removeChild(cursosWrap.lastElementChild);atualizarPreview();}}
   document.getElementById('curso-add').addEventListener('click',addCurso);
@@ -270,4 +270,5 @@
 </script>
 </body>
 </html>
+
 
